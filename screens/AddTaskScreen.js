@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Button, TextInput, Menu, Divider } from 'react-native-paper';
+import { Button, TextInput, Menu } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function AddTaskScreen({ navigation }) {
+export default function AddTaskScreen({ route, navigation }) {
+  const { addTask } = route.params;
   const [title, setTitle] = useState('');
   const [course, setCourse] = useState('');
   const [deadline, setDeadline] = useState(new Date());
@@ -12,45 +13,39 @@ export default function AddTaskScreen({ navigation }) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [courseMenuVisible, setCourseMenuVisible] = useState(false);
 
-  // Lista e kurseve të disponueshme
-  const courses = ['Mathematics', 'Physics', 'Chemistry', 'Biology'];
+  const courses = ['Mathematics', 'English', 'Physics', 'Chemistry'];
 
-  // Funksioni për ruajtjen e detyrës
+
   const handleSave = () => {
-    if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a task title');
-      return;
-    }
-    if (!course.trim()) {
-      Alert.alert('Error', 'Please select a course');
+    if (!title.trim() || !course.trim()) {
+      Alert.alert('Error', 'Please fill all required fields');
       return;
     }
 
     const newTask = {
-      id: Date.now().toString(),
+      id: Date.now().toString(), // ID generation added here
       title,
       course,
-      deadline: deadline.toISOString().split('T')[0], // Ruaj vetëm datën
+      deadline: deadline.toISOString().split('T')[0],
       priority,
-      progress: 0,
+      progress: 30,
     };
 
-    // Kthehu në HomeScreen me detyrën e re
-    navigation.navigate('Home', { newTask });
-    Alert.alert('Success', 'Task saved successfully!');
+    addTask(newTask);
+    navigation.goBack();
   };
 
-  // Funksioni për ndryshimin e datës
   const onDateChange = (event, selectedDate) => {
+    console.log("Selected Date:", selectedDate);
     setShowDatePicker(false);
     if (selectedDate) {
       setDeadline(selectedDate);
     }
   };
+  
 
   return (
     <ScrollView style={styles.container}>
-      {/* Input për titullin e detyrës */}
       <TextInput
         label="Task Title"
         value={title}
@@ -59,7 +54,7 @@ export default function AddTaskScreen({ navigation }) {
         mode="outlined"
       />
 
-      {/* Menu për zgjedhjen e kursit */}
+      {/* Course Selection Menu */}
       <Menu
         visible={courseMenuVisible}
         onDismiss={() => setCourseMenuVisible(false)}
@@ -67,7 +62,6 @@ export default function AddTaskScreen({ navigation }) {
           <Button
             mode="outlined"
             onPress={() => setCourseMenuVisible(true)}
-            style={styles.input}
             icon="book"
           >
             Course: {course || 'Select Course'}
@@ -86,14 +80,14 @@ export default function AddTaskScreen({ navigation }) {
         ))}
       </Menu>
 
-      {/* Input për afatin e detyrës */}
+      {/* Date Picker */}
       <TextInput
         label="Deadline"
         value={deadline.toDateString()}
         style={styles.input}
         mode="outlined"
         editable={false}
-        right={<TextInput.Icon icon="calendar" onPress={() => setShowDatePicker(true)} />}
+        right={<TextInput.Icon icon="calendar" onPress={() =>  setShowDatePicker(true)} />}
       />
       {showDatePicker && (
         <DateTimePicker
@@ -104,7 +98,7 @@ export default function AddTaskScreen({ navigation }) {
         />
       )}
 
-      {/* Menu për zgjedhjen e prioritetit */}
+      {/* Priority Selection */}
       <Menu
         visible={menuVisible}
         onDismiss={() => setMenuVisible(false)}
@@ -112,7 +106,6 @@ export default function AddTaskScreen({ navigation }) {
           <Button
             mode="outlined"
             onPress={() => setMenuVisible(true)}
-            style={styles.input}
             icon="alert-circle"
           >
             Priority: {priority}
@@ -142,7 +135,6 @@ export default function AddTaskScreen({ navigation }) {
         />
       </Menu>
 
-      {/* Butoni për ruajtjen e detyrës */}
       <Button
         mode="contained"
         onPress={handleSave}
@@ -152,7 +144,6 @@ export default function AddTaskScreen({ navigation }) {
         Save Task
       </Button>
 
-      {/* Butoni për anulim */}
       <Button
         mode="outlined"
         onPress={() => navigation.goBack()}
@@ -165,19 +156,73 @@ export default function AddTaskScreen({ navigation }) {
   );
 }
 
-// Stilizimi
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f5f5f5', // Sfondi mbetet i njëjtë
   },
   input: {
     marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', // Inputet mbeten të bardha për kontrast të mirë
+    borderColor: '#700e34', // Kufiri i inputeve me ngjyrë #700e34
+    borderWidth: 1, // Shtuar kufirin
+    borderRadius: 5, // Rrafshezo kufirin
+    paddingHorizontal: 10, // Pak hapësirë brenda inputit
   },
   button: {
     marginTop: 10,
     paddingVertical: 10,
+    backgroundColor: '#700e34', // Ngjyra e butonit është #700e34
+    borderRadius: 5, // Rrumbullakos kufirin e butonit
+    alignItems: 'center', // Përshtat tekstin në qendër
+  },
+  buttonText: {
+    color: '#fff', // Teksti i butonit të bardhë për kontrast të mirë
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  menuContainer: {
+    marginBottom: 15,
+    minHeight: 50,
+    justifyContent: 'center',
+  },
+  select: {
+    marginBottom: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#700e34', // Kufiri për selektorin "course:select"
+    borderRadius: 5,
+    backgroundColor: '#fff', // Background për selektorin
+  },
+  selectText: {
+    color: '#700e34', // Teksti i selektorit është në ngjyrë #700e34
+    fontSize: 14,
+  },
+  priority: {
+    marginBottom: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#700e34', // Kufiri për prioritetin
+    borderRadius: 5,
+    backgroundColor: '#fff', // Background për prioritetin
+  },
+  priorityText: {
+    color: '#700e34', // Teksti për prioritetin është në ngjyrë #700e34
+    fontSize: 14,
+  },
+  saveTask: {
+    marginTop: 20,
+    paddingVertical: 12,
+    backgroundColor: '#700e34', // Ngjyra e butonit "save task"
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  saveTaskText: {
+    color: '#fff', // Teksti i butonit "save task" është i bardhë
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

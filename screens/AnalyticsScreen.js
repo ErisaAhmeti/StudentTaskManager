@@ -120,9 +120,11 @@ export default function AnalyticsScreen() {
 
       { name: 'Math', hours: 12, color: '#FF6384' },
 
-      { name: 'Science', hours: 8, color: '#36A2EB' },
+      { name: 'Physics', hours: 8, color: '#36A2EB' },
 
-      { name: 'History', hours: 6, color: '#FFCE56' }
+      { name: 'English', hours: 6, color: '#FFCE56' },
+
+      {name: 'Chemistry', hours: 9, color: '#FFA07A'}
 
     ];
 
@@ -138,11 +140,10 @@ export default function AnalyticsScreen() {
 
         <Card.Content>
 
-          <Text variant="titleMedium" style={styles.centerText}>
+        <Text style={[styles.centerText, { fontSize: 20, fontWeight: 'bold' }]}>
+  Study Timer
+</Text>
 
-            Study Timer
-
-          </Text>
 
           <Text variant="displayMedium" style={styles.timer}>
 
